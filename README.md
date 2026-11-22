@@ -7,9 +7,13 @@ multi-select conversations and archive them in one go.
 
 ## Status
 
-**Day 2 preview.** The panel lists the user's chats with workspace, relative
-time, and status. Archived and subagent chats are hidden. Selection, bulk
-archive, and undo are not implemented yet.
+**Preview.** The Sifter panel groups chats by workspace and supports selection,
+bulk archive, and undo. When selection mode is on, idle chat rows in the native
+sidebar show a checkbox too. Archived and subagent chats stay hidden.
+
+The desktop **Workspaces header icons are not extensible**: DeepSeek Harness has
+no slot for a fourth header action, so Sifter uses its own panel button to turn
+on sidebar checkboxes. This is an upstream limitation, not a missing feature.
 
 This repository is early and unpublished. The npm package is not released.
 
@@ -64,9 +68,10 @@ directly.
 ## Roadmap
 
 - Day 1: bundle scaffold, sidebar icon, empty panel (done)
-- Day 2: chat list with workspace, relative time, and status (current)
-- Next: selection, bulk archive, undo
-- Later: inline selection, archive view, rule-based suggestions
+- Day 2: workspace-grouped chat list with status (done)
+- Day 3: selection, bulk archive, active-work confirmation, undo (done)
+- Next: keyboard range selection, accessibility pass, archive view
+- Later: inline header entry (needs an upstream slot), rule-based suggestions
 
 ## License
 
