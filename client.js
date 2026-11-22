@@ -35,6 +35,7 @@ window.__ModuleLoader__.load({
       'status.idle': 'Idle',
       'select.enable': 'Show checkboxes',
       'select.cancel': 'Cancel selection',
+      'select.none': 'No chats selected',
       'select.count': '{n} selected',
       'select.all': 'Select all',
       'select.clear': 'Clear',
@@ -43,6 +44,7 @@ window.__ModuleLoader__.load({
       'archive.running': 'Archiving {done} of {total}…',
       'archive.done': '{n} chats archived',
       'archive.failed': '{n} failed',
+      'archive.retryFailed': 'Retry failed',
       'archive.active': '{n} chats are still running.',
       'archive.activeBody':
         'Archiving stops the running work. Restoring the chat does not resume it.',
@@ -76,6 +78,7 @@ window.__ModuleLoader__.load({
       'status.idle': 'Boşta',
       'select.enable': 'Kutuları göster',
       'select.cancel': 'Seçimi bitir',
+      'select.none': 'Seçim yok',
       'select.count': '{n} seçili',
       'select.all': 'Tümünü seç',
       'select.clear': 'Temizle',
@@ -84,6 +87,7 @@ window.__ModuleLoader__.load({
       'archive.running': '{done} / {total} arşivleniyor…',
       'archive.done': '{n} sohbet arşivlendi',
       'archive.failed': '{n} başarısız',
+      'archive.retryFailed': 'Başarısızları dene',
       'archive.active': '{n} sohbet hâlâ çalışıyor.',
       'archive.activeBody':
         'Arşivlemek çalışan işi durdurur. Sohbeti geri almak işi yeniden başlatmaz.',
@@ -769,6 +773,9 @@ window.__ModuleLoader__.load({
 
         if (run !== null && run.phase === 'done') {
           const failures = run.results.filter((result) => !result.ok)
+          const retryable = failures
+            .filter((failure) => failure.code !== 'workspace/session-active')
+            .map((failure) => failure.id)
           const active = run.active ?? []
           const archived = run.archived ?? []
           return h(
@@ -793,6 +800,21 @@ window.__ModuleLoader__.load({
                 `${titleFor(failure.id)} — ${failure.code}`,
               ),
             ),
+            retryable.length > 0
+              ? h(
+                  'div',
+                  { style: styles.noticeActions },
+                  h(
+                    'button',
+                    {
+                      type: 'button',
+                      style: styles.button,
+                      onClick: () => archiveMany(retryable, false),
+                    },
+                    t('archive.retryFailed'),
+                  ),
+                )
+              : null,
             active.length > 0 && run.stopActivity !== true
               ? h(
                   'div',
@@ -895,7 +917,7 @@ window.__ModuleLoader__.load({
             { style: styles.selectionCount },
             selectedCount > 0
               ? t('select.count', { n: selectedCount })
-              : t('select.enable'),
+              : t('select.none'),
           ),
           h(
             'div',
