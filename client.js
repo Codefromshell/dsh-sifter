@@ -250,6 +250,12 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function statusFor(statuses, sessionId) {
+      if (statuses == null) return undefined
+      if (typeof statuses.get === 'function') return statuses.get(sessionId)
+      return statuses[sessionId]
+    }
+
     function collectRows(sessions, workspaces, statuses) {
       const archived = new Set(workspaces.archivedSessionIds ?? [])
       const workspaceBySession = new Map()
@@ -269,7 +275,7 @@ window.__ModuleLoader__.load({
         if (summary.origin === 'subagent') continue
         if (archived.has(sessionId)) continue
 
-        const status = statuses.get(sessionId)
+        const status = statusFor(statuses, sessionId)
         rows.push({
           id: sessionId,
           title: summary.displayTitle || summary.title || sessionId,
