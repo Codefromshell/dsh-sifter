@@ -857,7 +857,7 @@ window.__ModuleLoader__.load({
                       disabled: undo !== null && undo.phase === 'running',
                       onClick: undoArchive,
                     },
-                    t('archive.undo'),
+                    `${t('archive.undo')} (${lastArchived.length})`,
                   ),
                 )
               : null,
