@@ -7,13 +7,17 @@ multi-select conversations and archive them in one go.
 
 ## Status
 
-**Preview.** The Sifter panel groups chats by workspace and supports selection,
-bulk archive, and undo. When selection mode is on, idle chat rows in the native
-sidebar show a checkbox too. Archived and subagent chats stay hidden.
+**Preview.** The Sifter panel uses a two-column layout: a scrollable
+workspace-grouped chat list on the left and selection controls on the right.
+Groups can be collapsed; a flat list view is available. Selection, bulk archive,
+active-work confirmation, and undo work. When selection mode is on, idle chat
+rows in the native sidebar show a checkbox too. Successful archive runs clear
+the selection and hide those checkboxes automatically.
 
 The desktop **Workspaces header icons are not extensible**: DeepSeek Harness has
 no slot for a fourth header action, so Sifter uses its own panel button to turn
-on sidebar checkboxes. This is an upstream limitation, not a missing feature.
+on sidebar checkboxes. Splitting the Sifter sidebar entry into two controls is
+also not possible through the slot API; this needs an upstream slot.
 
 This repository is early and unpublished. The npm package is not released.
 
@@ -70,8 +74,9 @@ directly.
 - Day 1: bundle scaffold, sidebar icon, empty panel (done)
 - Day 2: workspace-grouped chat list with status (done)
 - Day 3: selection, bulk archive, active-work confirmation, undo (done)
+- Day 4: two-column layout, collapsible groups, flat view, auto-hide selection (done)
 - Next: keyboard range selection, accessibility pass, archive view
-- Later: inline header entry (needs an upstream slot), rule-based suggestions
+- Later: native header/select split (needs an upstream slot), rule-based suggestions
 
 ## License
 
