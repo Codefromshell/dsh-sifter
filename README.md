@@ -17,7 +17,8 @@ the selection and hide those checkboxes automatically.
 The desktop **Workspaces header icons are not extensible**: DeepSeek Harness has
 no slot for a fourth header action, so Sifter uses its own panel button to turn
 on sidebar checkboxes. Splitting the Sifter sidebar entry into two controls is
-also not possible through the slot API; this needs an upstream slot.
+also not possible through the slot API; this needs an upstream slot. The
+`Ctrl/Cmd+Shift+E` shortcut toggles selection mode as a keyboard alternative.
 
 This repository is early and unpublished. The npm package is not released.
 
