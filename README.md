@@ -7,9 +7,9 @@ multi-select conversations and archive them in one go.
 
 ## Status
 
-**Day 1 scaffold.** The bundle is installed and served by the Web profile. The
-Sifter icon and the empty Sifter panel are the next live check in the Desktop
-app. The chat list, selection, bulk archive, and undo are not implemented yet.
+**Day 2 preview.** The panel lists the user's chats with workspace, relative
+time, and status. Archived and subagent chats are hidden. Selection, bulk
+archive, and undo are not implemented yet.
 
 This repository is early and unpublished. The npm package is not released.
 
@@ -63,8 +63,9 @@ directly.
 
 ## Roadmap
 
-- Day 1: bundle scaffold, sidebar icon, empty panel (current)
-- Next: session list, selection, bulk archive, undo
+- Day 1: bundle scaffold, sidebar icon, empty panel (done)
+- Day 2: chat list with workspace, relative time, and status (current)
+- Next: selection, bulk archive, undo
 - Later: inline selection, archive view, rule-based suggestions
 
 ## License
