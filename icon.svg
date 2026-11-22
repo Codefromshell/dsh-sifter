@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Sifter">
+  <defs>
+    <linearGradient id="sifter-gradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5B7CFF"/>
+      <stop offset="1" stop-color="#2B3FD8"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="30" fill="url(#sifter-gradient)"/>
+  <rect x="28" y="34" width="60" height="13" rx="6.5" fill="#FFFFFF"/>
+  <rect x="28" y="56" width="72" height="13" rx="6.5" fill="#FFFFFF" opacity="0.78"/>
+  <rect x="28" y="78" width="50" height="13" rx="6.5" fill="#FFFFFF" opacity="0.52"/>
+  <circle cx="91" cy="91" r="21" fill="#FFFFFF"/>
+  <path d="M81 91.5l6.6 6.6L101 84.4" fill="none" stroke="#2B3FD8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,4 @@
+# Sifter's bundle layer: insert one plugin row into the Web profile.
+- insert:
+    - id: dsh-sifter
+      name: dsh-sifter
