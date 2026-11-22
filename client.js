@@ -32,6 +32,7 @@ window.__ModuleLoader__.load({
       'view.allChats': 'All chats',
       'select.sidebarHint': 'Checkboxes appear on idle chats in the native sidebar.',
       'select.panelTitle': 'Selection',
+      'shortcut.toggleSelection': 'Toggle Sifter selection',
       'time.justNow': 'just now',
       'time.minutes': '{n}m ago',
       'time.hours': '{n}h ago',
@@ -82,6 +83,7 @@ window.__ModuleLoader__.load({
       'view.allChats': 'Tüm sohbetler',
       'select.sidebarHint': 'Kutular native kenar çubuğunda, boşta sohbetlerde görünür.',
       'select.panelTitle': 'Seçim',
+      'shortcut.toggleSelection': 'Sifter seçimini aç/kapat',
       'time.justNow': 'az önce',
       'time.minutes': '{n} dk önce',
       'time.hours': '{n} sa önce',
@@ -1312,6 +1314,11 @@ window.__ModuleLoader__.load({
 
       const t = ctx.locale.bind(NS)
       const selection = createSelectionStore()
+      const toggleSelectionMode = () => {
+        const state = selection.getSnapshot()
+        if (state.mode === 'select') selection.clear()
+        else selection.setMode('select')
+      }
 
       ctx.effect(() => ctx.locale.register(NS, 'en', en), 'sifter: en dictionary')
 
@@ -1340,6 +1347,37 @@ window.__ModuleLoader__.load({
           return () => {}
         }
       }, 'sifter: tr language pack')
+
+      ctx.inject?.(['shortcuts'], (shortcutCtx) => {
+        shortcutCtx.effect(() => {
+          try {
+            return shortcutCtx.shortcuts.register({
+              id: 'sifter.toggle-selection',
+              label: () => t('shortcut.toggleSelection'),
+              aliases: ['sifter selection', 'select chats'],
+              defaults: {
+                'desktop:macos': { code: 'KeyE', modifiers: ['primary', 'shift'] },
+                'desktop:windows': { code: 'KeyE', modifiers: ['primary', 'shift'] },
+                'desktop:linux': { code: 'KeyE', modifiers: ['primary', 'shift'] },
+                'web:macos': { code: 'KeyE', modifiers: ['primary', 'shift'] },
+                'web:windows': { code: 'KeyE', modifiers: ['primary', 'shift'] },
+                'web:linux': { code: 'KeyE', modifiers: ['primary', 'shift'] },
+              },
+              regions: ['page'],
+              modals: [],
+              resolve: () => ({
+                status: 'handled',
+                run: () => {
+                  toggleSelectionMode()
+                },
+              }),
+            })
+          } catch (error) {
+            console.warn('[sifter] selection shortcut is unavailable:', error)
+            return () => {}
+          }
+        }, 'sifter: selection shortcut')
+      })
 
       ctx.slots.inject('sidebar.panellist', () =>
         ctx.slots.register(
