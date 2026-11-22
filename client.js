@@ -25,6 +25,13 @@ window.__ModuleLoader__.load({
       'list.ungrouped': 'Ungrouped',
       'list.untitledWorkspace': 'Untitled workspace',
       'list.folder': '{n} chats',
+      'view.grouped': 'Folders',
+      'view.flat': 'Flat list',
+      'view.collapseAll': 'Collapse all',
+      'view.expandAll': 'Expand all',
+      'view.allChats': 'All chats',
+      'select.sidebarHint': 'Checkboxes appear on idle chats in the native sidebar.',
+      'select.panelTitle': 'Selection',
       'time.justNow': 'just now',
       'time.minutes': '{n}m ago',
       'time.hours': '{n}h ago',
@@ -68,6 +75,13 @@ window.__ModuleLoader__.load({
       'list.ungrouped': 'Grupsuz',
       'list.untitledWorkspace': 'Adsız çalışma alanı',
       'list.folder': '{n} sohbet',
+      'view.grouped': 'Klasörler',
+      'view.flat': 'Düz liste',
+      'view.collapseAll': 'Tümünü kapat',
+      'view.expandAll': 'Tümünü aç',
+      'view.allChats': 'Tüm sohbetler',
+      'select.sidebarHint': 'Kutular native kenar çubuğunda, boşta sohbetlerde görünür.',
+      'select.panelTitle': 'Seçim',
       'time.justNow': 'az önce',
       'time.minutes': '{n} dk önce',
       'time.hours': '{n} sa önce',
@@ -102,9 +116,12 @@ window.__ModuleLoader__.load({
 
     const styles = {
       root: {
-        minHeight: '100%',
+        height: '100%',
+        minHeight: 0,
         boxSizing: 'border-box',
         padding: '28px 32px 40px',
+        overflowY: 'auto',
+        overscrollBehavior: 'contain',
         background: 'var(--dsw-alias-bg-base)',
         color: 'var(--dsw-alias-label-primary)',
         fontFamily: 'var(--dsw-font-family)',
@@ -152,6 +169,67 @@ window.__ModuleLoader__.load({
         fontSize: '12px',
         lineHeight: '18px',
       },
+      content: {
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr) 300px',
+        alignItems: 'start',
+        gap: '24px',
+      },
+      mainColumn: { minWidth: 0 },
+      sideColumn: {
+        position: 'sticky',
+        top: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+      },
+      viewBar: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        flexWrap: 'wrap',
+        marginBottom: '12px',
+      },
+      segment: {
+        padding: '5px 10px',
+        border: '1px solid var(--dsw-alias-border-l2)',
+        borderRadius: 'var(--dsw-radius-sm)',
+        background: 'transparent',
+        color: 'var(--dsw-alias-label-tertiary)',
+        font: 'inherit',
+        fontSize: '12px',
+        lineHeight: '18px',
+        cursor: 'pointer',
+      },
+      segmentActive: {
+        background: 'var(--dsw-alias-bg-layer-2)',
+        color: 'var(--dsw-alias-label-primary)',
+      },
+      railCard: {
+        padding: '16px',
+        border: '1px solid var(--dsw-alias-border-l2)',
+        borderRadius: 'var(--dsw-radius-md)',
+        background: 'var(--dsw-alias-bg-layer-1)',
+      },
+      railTitle: {
+        marginBottom: '6px',
+        fontSize: '13px',
+        fontWeight: 600,
+        lineHeight: '20px',
+      },
+      railHint: {
+        marginTop: '10px',
+        color: 'var(--dsw-alias-label-tertiary)',
+        fontSize: '12px',
+        lineHeight: '18px',
+      },
+      railActions: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        gap: '8px',
+        marginTop: '12px',
+      },
       toolbar: {
         display: 'flex',
         alignItems: 'center',
@@ -188,15 +266,20 @@ window.__ModuleLoader__.load({
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
+        width: '100%',
+        boxSizing: 'border-box',
         padding: '8px 12px',
         border: '1px solid var(--dsw-alias-border-l2)',
         borderBottom: 'none',
         borderRadius: 'var(--dsw-radius-md) var(--dsw-radius-md) 0 0',
         background: 'var(--dsw-alias-bg-layer-2)',
         color: 'var(--dsw-alias-label-secondary)',
+        font: 'inherit',
         fontSize: '13px',
         fontWeight: 600,
         lineHeight: '20px',
+        textAlign: 'left',
+        cursor: 'pointer',
       },
       groupTitle: {
         overflow: 'hidden',
@@ -213,6 +296,12 @@ window.__ModuleLoader__.load({
         overflow: 'hidden',
         border: '1px solid var(--dsw-alias-border-l2)',
         borderRadius: '0 0 var(--dsw-radius-md) var(--dsw-radius-md)',
+        background: 'var(--dsw-alias-bg-layer-1)',
+      },
+      flatList: {
+        overflow: 'hidden',
+        border: '1px solid var(--dsw-alias-border-l2)',
+        borderRadius: 'var(--dsw-radius-md)',
         background: 'var(--dsw-alias-bg-layer-1)',
       },
       row: {
@@ -563,6 +652,32 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function ChevronIcon({ collapsed }) {
+      return h(
+        'svg',
+        {
+          width: 12,
+          height: 12,
+          viewBox: '0 0 24 24',
+          fill: 'none',
+          'aria-hidden': true,
+          focusable: 'false',
+          style: {
+            flex: '0 0 auto',
+            transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+            transition: 'transform 120ms ease',
+          },
+        },
+        h('path', {
+          d: 'M7 10l5 5 5-5',
+          stroke: 'currentColor',
+          strokeWidth: 1.8,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+        }),
+      )
+    }
+
     function SessionSelectBox(props) {
       const selection = props.selection
       if (selection === undefined) return null
@@ -652,6 +767,28 @@ window.__ModuleLoader__.load({
       const [run, setRun] = React.useState(null)
       const [undo, setUndo] = React.useState(null)
       const [lastArchived, setLastArchived] = React.useState([])
+      const [viewMode, setViewMode] = React.useState('grouped')
+      const [collapsed, setCollapsed] = React.useState(new Set())
+
+      const flatRows = React.useMemo(
+        () => groups.flatMap((group) => group.rows),
+        [groups],
+      )
+      const allCollapsed =
+        groups.length > 0 && groups.every((group) => collapsed.has(group.key))
+
+      function toggleGroup(key) {
+        setCollapsed((current) => {
+          const next = new Set(current)
+          if (next.has(key)) next.delete(key)
+          else next.add(key)
+          return next
+        })
+      }
+
+      function toggleAllGroups() {
+        setCollapsed(allCollapsed ? new Set() : new Set(groups.map((group) => group.key)))
+      }
 
       const titleFor = (sessionId) =>
         sessions.byId?.[sessionId]?.displayTitle ??
@@ -717,6 +854,11 @@ window.__ModuleLoader__.load({
           active,
         })
         props.selection.remove(archived)
+        if (active.length > 0) {
+          props.selection.setMode('select')
+        } else {
+          props.selection.clear()
+        }
         if (archived.length > 0) {
           setLastArchived((current) => [...new Set([...current, ...archived])])
         }
@@ -882,6 +1024,136 @@ window.__ModuleLoader__.load({
       }
 
       const canArchive = selectedCount > 0 && (run === null || run.phase !== 'running')
+      const railButton = { ...styles.button, width: '100%', textAlign: 'center' }
+
+      function renderRow(row, index, total) {
+        const status = rowStatus(row, t)
+        const time = formatRelativeTime(row.updatedAt, t)
+        const selected = selectionState.ids.has(row.id)
+        return h(
+          'div',
+          {
+            key: row.id,
+            role: 'option',
+            'aria-selected': selected,
+            tabIndex: 0,
+            style: {
+              ...styles.row,
+              ...(selected ? styles.rowSelected : {}),
+              ...(index === total - 1 ? styles.rowLast : {}),
+            },
+            onClick: (event) => handleRowToggle(row.id, event),
+            onKeyDown: (event) => {
+              if (event.key === ' ' || event.key === 'Enter') {
+                event.preventDefault()
+                handleRowToggle(row.id, event)
+              }
+            },
+          },
+          h(
+            'button',
+            {
+              type: 'button',
+              role: 'checkbox',
+              'aria-checked': selected,
+              style: {
+                ...styles.checkbox,
+                ...(selected ? styles.checkboxChecked : {}),
+              },
+              onClick: (event) => {
+                event.stopPropagation()
+                handleRowToggle(row.id, event)
+              },
+              onMouseDown: (event) => event.stopPropagation(),
+            },
+            selected ? '✓' : null,
+          ),
+          h(
+            'div',
+            { style: styles.rowMain },
+            h('div', { style: styles.rowTitle }, row.title),
+            h('div', { style: styles.rowMeta }, row.workspace ?? t('list.ungrouped')),
+          ),
+          h('div', { style: styles.rowTime }, time),
+          h(
+            'div',
+            {
+              style: {
+                ...styles.rowStatus,
+                color: styles.statusColors[status.state],
+              },
+            },
+            status.label,
+          ),
+        )
+      }
+
+      function renderGroup(group) {
+        const isCollapsed = collapsed.has(group.key)
+        return h(
+          'section',
+          { key: group.key, style: styles.group },
+          h(
+            'button',
+            {
+              type: 'button',
+              style: {
+                ...styles.groupHeader,
+                ...(isCollapsed
+                  ? {
+                      borderBottom: '1px solid var(--dsw-alias-border-l2)',
+                      borderRadius: 'var(--dsw-radius-md)',
+                    }
+                  : {}),
+              },
+              'aria-expanded': !isCollapsed,
+              onClick: () => toggleGroup(group.key),
+            },
+            h(ChevronIcon, { collapsed: isCollapsed }),
+            h(FolderIcon, null),
+            h('span', { style: styles.groupTitle }, group.title),
+            h(
+              'span',
+              { style: styles.groupCount },
+              t('list.folder', { n: group.rows.length }),
+            ),
+          ),
+          isCollapsed
+            ? null
+            : h(
+                'div',
+                {
+                  style: styles.list,
+                  role: 'listbox',
+                  'aria-multiselectable': 'true',
+                  'aria-label': group.title,
+                },
+                group.rows.map((row, index) =>
+                  renderRow(row, index, group.rows.length),
+                ),
+              ),
+        )
+      }
+
+      let listContent = null
+      if (loading) {
+        listContent = h('div', { style: styles.empty, role: 'status' }, t('list.loading'))
+      } else if (groups.length === 0) {
+        listContent = h('div', { style: styles.empty, role: 'status' }, t('list.empty'))
+      } else if (viewMode === 'flat') {
+        listContent = h(
+          'div',
+          {
+            style: styles.flatList,
+            role: 'listbox',
+            'aria-multiselectable': 'true',
+            'aria-label': t('view.allChats'),
+          },
+          flatRows.map((row, index) => renderRow(row, index, flatRows.length)),
+        )
+      } else {
+        listContent = groups.map((group) => renderGroup(group))
+      }
 
       return h(
         'div',
@@ -911,163 +1183,118 @@ window.__ModuleLoader__.load({
         ),
         h(
           'div',
-          { style: styles.toolbar },
+          { style: styles.content },
           h(
             'div',
-            { style: styles.selectionCount },
-            selectedCount > 0
-              ? t('select.count', { n: selectedCount })
-              : t('select.none'),
-          ),
-          h(
-            'div',
-            { style: styles.actions },
+            { style: styles.mainColumn },
             h(
-              'button',
-              {
-                type: 'button',
-                style: styles.button,
-                onClick: () =>
-                  selectionState.mode === 'select'
-                    ? props.selection.clear()
-                    : props.selection.setMode('select'),
-              },
-              selectionState.mode === 'select'
-                ? t('select.cancel')
-                : t('select.enable'),
-            ),
-            h(
-              'button',
-              {
-                type: 'button',
-                style: styles.button,
-                disabled: allIds.length === 0,
-                onClick: () => props.selection.selectVisible(allIds),
-              },
-              t('select.all'),
-            ),
-            h(
-              'button',
-              {
-                type: 'button',
-                style: styles.button,
-                disabled: selectedCount === 0,
-                onClick: () => props.selection.clear(),
-              },
-              t('select.clear'),
-            ),
-            h(
-              'button',
-              {
-                type: 'button',
-                style: {
-                  ...styles.button,
-                  ...styles.buttonPrimary,
-                  ...(canArchive ? {} : styles.buttonDisabled),
+              'div',
+              { style: styles.viewBar },
+              h(
+                'button',
+                {
+                  type: 'button',
+                  style: {
+                    ...styles.segment,
+                    ...(viewMode === 'grouped' ? styles.segmentActive : {}),
+                  },
+                  onClick: () => setViewMode('grouped'),
                 },
-                disabled: !canArchive,
-                onClick: () => archiveMany([...selectionState.ids], false),
-              },
-              t('select.archive'),
+                t('view.grouped'),
+              ),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  style: {
+                    ...styles.segment,
+                    ...(viewMode === 'flat' ? styles.segmentActive : {}),
+                  },
+                  onClick: () => setViewMode('flat'),
+                },
+                t('view.flat'),
+              ),
+              viewMode === 'grouped' && groups.length > 0
+                ? h(
+                    'button',
+                    { type: 'button', style: styles.segment, onClick: toggleAllGroups },
+                    allCollapsed ? t('view.expandAll') : t('view.collapseAll'),
+                  )
+                : null,
             ),
+            listContent,
           ),
-        ),
-        renderNotice(),
-        loading
-          ? h('div', { style: styles.empty, role: 'status' }, t('list.loading'))
-          : groups.length === 0
-            ? h('div', { style: styles.empty, role: 'status' }, t('list.empty'))
-            : groups.map((group) =>
+          h(
+            'aside',
+            { style: styles.sideColumn },
+            h(
+              'div',
+              { style: styles.railCard },
+              h('div', { style: styles.railTitle }, t('select.panelTitle')),
+              h(
+                'div',
+                { style: styles.selectionCount },
+                selectedCount > 0
+                  ? t('select.count', { n: selectedCount })
+                  : t('select.none'),
+              ),
+              h(
+                'div',
+                { style: styles.railActions },
                 h(
-                  'section',
-                  { key: group.key, style: styles.group },
-                  h(
-                    'div',
-                    { style: styles.groupHeader },
-                    h(FolderIcon, null),
-                    h('span', { style: styles.groupTitle }, group.title),
-                    h(
-                      'span',
-                      { style: styles.groupCount },
-                      t('list.folder', { n: group.rows.length }),
-                    ),
-                  ),
-                  h(
-                    'div',
-                    {
-                      style: styles.list,
-                      role: 'listbox',
-                      'aria-multiselectable': 'true',
-                      'aria-label': group.title,
+                  'button',
+                  {
+                    type: 'button',
+                    style: railButton,
+                    onClick: () =>
+                      selectionState.mode === 'select'
+                        ? props.selection.clear()
+                        : props.selection.setMode('select'),
+                  },
+                  selectionState.mode === 'select'
+                    ? t('select.cancel')
+                    : t('select.enable'),
+                ),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    style: railButton,
+                    disabled: allIds.length === 0,
+                    onClick: () => props.selection.selectVisible(allIds),
+                  },
+                  t('select.all'),
+                ),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    style: railButton,
+                    disabled: selectedCount === 0,
+                    onClick: () => props.selection.clear(),
+                  },
+                  t('select.clear'),
+                ),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    style: {
+                      ...railButton,
+                      ...styles.buttonPrimary,
+                      ...(canArchive ? {} : styles.buttonDisabled),
                     },
-                    group.rows.map((row, index) => {
-                      const status = rowStatus(row, t)
-                      const time = formatRelativeTime(row.updatedAt, t)
-                      const selected = selectionState.ids.has(row.id)
-                      return h(
-                        'div',
-                        {
-                          key: row.id,
-                          role: 'option',
-                          'aria-selected': selected,
-                          tabIndex: 0,
-                          style: {
-                            ...styles.row,
-                            ...(selected ? styles.rowSelected : {}),
-                            ...(index === group.rows.length - 1 ? styles.rowLast : {}),
-                          },
-                          onClick: (event) => handleRowToggle(row.id, event),
-                          onKeyDown: (event) => {
-                            if (event.key === ' ' || event.key === 'Enter') {
-                              event.preventDefault()
-                              handleRowToggle(row.id, event)
-                            }
-                          },
-                        },
-                        h(
-                          'button',
-                          {
-                            type: 'button',
-                            role: 'checkbox',
-                            'aria-checked': selected,
-                            style: {
-                              ...styles.checkbox,
-                              ...(selected ? styles.checkboxChecked : {}),
-                            },
-                            onClick: (event) => {
-                              event.stopPropagation()
-                              handleRowToggle(row.id, event)
-                            },
-                            onMouseDown: (event) => event.stopPropagation(),
-                          },
-                          selected ? '✓' : null,
-                        ),
-                        h(
-                          'div',
-                          { style: styles.rowMain },
-                          h('div', { style: styles.rowTitle }, row.title),
-                          h(
-                            'div',
-                            { style: styles.rowMeta },
-                            row.workspace ?? t('list.ungrouped'),
-                          ),
-                        ),
-                        h('div', { style: styles.rowTime }, time),
-                        h(
-                          'div',
-                          {
-                            style: {
-                              ...styles.rowStatus,
-                              color: styles.statusColors[status.state],
-                            },
-                          },
-                          status.label,
-                        ),
-                      )
-                    }),
-                  ),
+                    disabled: !canArchive,
+                    onClick: () => archiveMany([...selectionState.ids], false),
+                  },
+                  t('select.archive'),
                 ),
               ),
+              h('div', { style: styles.railHint }, t('select.sidebarHint')),
+            ),
+            renderNotice(),
+          ),
+        ),
       )
     }
 
